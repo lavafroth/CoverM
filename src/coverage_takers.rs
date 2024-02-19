@@ -135,24 +135,18 @@ impl CoverageTaker for CoverageTakerType {
                     );
                     entry_names.resize(entry_order_id + 1, None)
                 }
-                if entry_names[entry_order_id].is_none() {
-                    entry_names[entry_order_id] = Some(entry_name.to_owned());
-                }
-                match &entry_names[entry_order_id] {
-                    Some(prev) => {
-                        if prev != entry_name {
-                            error!(
-                                "Found a difference amongst the reference sets used for \
+                if let Some(prev) = &entry_names[entry_order_id] {
+                    error!(
+                        "Found a difference amongst the reference sets used for \
                                     mapping. For this (non-streaming) usage of CoverM, all \
                                     BAM files must have the same set of reference sequences. \
                                     Previous entry was {}, new is {}",
-                                prev, entry_name
-                            );
-                            process::exit(1);
-                        }
-                    }
-                    None => unreachable!(),
+                        prev, entry_name
+                    );
+                    process::exit(1);
                 }
+
+                entry_names[entry_order_id] = Some(entry_name.to_owned());
                 *current_entry_index = Some(entry_order_id);
             }
         }
